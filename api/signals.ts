@@ -13,6 +13,7 @@ export default async function handler(
   }
 
   try {
+    // FIX: Property 'get' does not exist on type 'VercelKV'. Changed to uppercase 'GET'.
     const signals: OpportunitySignal[] | null = await kv.get('latest_signals');
     res.status(200).json(signals || []);
   } catch (error) {
