@@ -1,5 +1,5 @@
 {
-  "name": "Blank Coding Page",
-  "description": "A clean, minimalist, and aesthetically pleasing blank page that mimics a code editor, perfect for drafting code snippets, notes, or plain text in a developer-focused environment.",
+  "name": "股市通知O",
+  "description": "A minimalist control panel to configure and monitor a serverless stock market alerting bot. Set your Line Notify token and view the bot's status and recent alerts.",
   "requestFramePermissions": []
 }
