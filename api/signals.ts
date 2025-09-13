@@ -13,8 +13,8 @@ export default async function handler(
   }
 
   try {
-    // FIX: Corrected Vercel KV method from 'get' to 'GET'.
-    const signals: OpportunitySignal[] | null = await kv.GET('latest_signals');
+    // FIX: Vercel KV methods are lowercase. Changed `kv.GET` to `kv.get`.
+    const signals: OpportunitySignal[] | null = await kv.get('latest_signals');
     res.status(200).json(signals || []);
   } catch (error) {
     console.error('Failed to retrieve signals from KV:', error);
