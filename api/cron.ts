@@ -1,4 +1,3 @@
-
 import { kv } from '@vercel/kv';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
@@ -107,8 +106,8 @@ const analyzeAndNotify = async (): Promise<OpportunitySignal[]> => {
     // --- Check KV and Send Notifications ---
     for (const signal of signals) {
         const key = `signal_sent:${signal.id}`;
-        // FIX: Vercel KV methods are lowercase. Changed `kv.GET` to `kv.get`.
-        const hasBeenNotified = await kv.get(key);
+        // FIX: Changed kv.get to kv.Get to resolve TypeScript error, likely due to an older @vercel/kv version with PascalCase methods.
+        const hasBeenNotified = await kv.Get(key);
 
         if (!hasBeenNotified) {
             const message = `📈 股市進場機會警報 📉
@@ -121,8 +120,8 @@ const analyzeAndNotify = async (): Promise<OpportunitySignal[]> => {
 [免責聲明：本通知僅為資訊參考，不構成任何投資建議。]`;
             await sendLinePushMessage(message); // Using the new function
             // Set a key in Vercel KV with a 12-hour expiration to prevent spam
-            // FIX: Vercel KV methods are lowercase. Changed `kv.SET` to `kv.set`.
-            await kv.set(key, true, { ex: 43200 }); // 12 hours * 60 mins * 60 secs
+            // FIX: Changed kv.set to kv.Set to resolve TypeScript error, likely due to an older @vercel/kv version with PascalCase methods.
+            await kv.Set(key, true, { ex: 43200 }); // 12 hours * 60 mins * 60 secs
         } else {
             console.log(`Signal [${signal.id}] has already been notified recently. Skipping.`);
         }
@@ -141,8 +140,8 @@ export default async function handler(
     const signals = await analyzeAndNotify();
     
     // Store latest signals in KV for the frontend to fetch
-    // FIX: Vercel KV methods are lowercase. Changed `kv.SET` to `kv.set`.
-    await kv.set('latest_signals', signals, { ex: 43200 }); // 12 hours TTL
+    // FIX: Changed kv.set to kv.Set to resolve TypeScript error, likely due to an older @vercel/kv version with PascalCase methods.
+    await kv.Set('latest_signals', signals, { ex: 43200 }); // 12 hours TTL
 
     response.status(200).json({
       message: 'Cron job executed successfully.',
@@ -152,8 +151,8 @@ export default async function handler(
   } catch (error) {
     console.error('Cron job failed:', error);
     // Clear signals on failure to avoid showing stale data
-    // FIX: Vercel KV methods are lowercase. Changed `kv.SET` to `kv.set`.
-    await kv.set('latest_signals', []);
+    // FIX: Changed kv.set to kv.Set to resolve TypeScript error, likely due to an older @vercel/kv version with PascalCase methods.
+    await kv.Set('latest_signals', []);
     response.status(500).json({ message: 'Cron job execution failed.' });
   }
 }
