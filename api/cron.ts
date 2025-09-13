@@ -1,6 +1,6 @@
 
 import { kv } from '@vercel/kv';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 // Define the structure for an opportunity signal
 interface OpportunitySignal {
@@ -107,8 +107,8 @@ const analyzeAndNotify = async (): Promise<OpportunitySignal[]> => {
     // --- Check KV and Send Notifications ---
     for (const signal of signals) {
         const key = `signal_sent:${signal.id}`;
-        // Fix: Changed kv.get to kv.GET as Vercel KV SDK uses uppercase method names.
-        const hasBeenNotified = await kv.GET(key);
+        // Corrected Vercel KV method from `GET` to `get`.
+        const hasBeenNotified = await kv.get(key);
 
         if (!hasBeenNotified) {
             const message = `📈 股市進場機會警報 📉
@@ -121,8 +121,8 @@ const analyzeAndNotify = async (): Promise<OpportunitySignal[]> => {
 [免責聲明：本通知僅為資訊參考，不構成任何投資建議。]`;
             await sendLinePushMessage(message); // Using the new function
             // Set a key in Vercel KV with a 12-hour expiration to prevent spam
-            // Fix: Changed kv.set to kv.SET as Vercel KV SDK uses uppercase method names.
-            await kv.SET(key, true, { ex: 43200 }); // 12 hours * 60 mins * 60 secs
+            // Corrected Vercel KV method from `SET` to `set`.
+            await kv.set(key, true, { ex: 43200 }); // 12 hours * 60 mins * 60 secs
         } else {
             console.log(`Signal [${signal.id}] has already been notified recently. Skipping.`);
         }
@@ -133,16 +133,16 @@ const analyzeAndNotify = async (): Promise<OpportunitySignal[]> => {
 
 // --- API HANDLER for Vercel Cron Job ---
 export default async function handler(
-  request: NextApiRequest,
-  response: NextApiResponse,
+  request: VercelRequest,
+  response: VercelResponse,
 ) {
   try {
     console.log("Cron job started at:", new Date().toISOString());
     const signals = await analyzeAndNotify();
     
     // Store latest signals in KV for the frontend to fetch
-    // Fix: Changed kv.set to kv.SET as Vercel KV SDK uses uppercase method names.
-    await kv.SET('latest_signals', signals, { ex: 43200 }); // 12 hours TTL
+    // Corrected Vercel KV method from `SET` to `set`.
+    await kv.set('latest_signals', signals, { ex: 43200 }); // 12 hours TTL
 
     response.status(200).json({
       message: 'Cron job executed successfully.',
@@ -152,8 +152,8 @@ export default async function handler(
   } catch (error) {
     console.error('Cron job failed:', error);
     // Clear signals on failure to avoid showing stale data
-    // Fix: Changed kv.set to kv.SET as Vercel KV SDK uses uppercase method names.
-    await kv.SET('latest_signals', []);
+    // Corrected Vercel KV method from `SET` to `set`.
+    await kv.set('latest_signals', []);
     response.status(500).json({ message: 'Cron job execution failed.' });
   }
 }

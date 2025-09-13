@@ -1,11 +1,11 @@
 
 import { kv } from '@vercel/kv';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { OpportunitySignal } from '../types';
 
 export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<OpportunitySignal[] | { message: string }>,
+  req: VercelRequest,
+  res: VercelResponse,
 ) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
@@ -13,8 +13,8 @@ export default async function handler(
   }
 
   try {
-    // FIX: Changed kv.get to kv.GET as the method name is uppercase.
-    const signals: OpportunitySignal[] | null = await kv.GET('latest_signals');
+    // Corrected Vercel KV method from `GET` to `get`.
+    const signals: OpportunitySignal[] | null = await kv.get('latest_signals');
     res.status(200).json(signals || []);
   } catch (error) {
     console.error('Failed to retrieve signals from KV:', error);
